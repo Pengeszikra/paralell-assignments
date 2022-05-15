@@ -88,15 +88,6 @@ export const LiveGame:FC = () => {
 
   }, [countOfPlay])
   
-  /*
-
-    Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-    Any live cell with two or three live neighbours lives on to the next generation.
-    Any live cell with more than three live neighbours dies, as if by overpopulation.
-    Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-
-  */
-
   const countNeighbours = (area:TArea) => (position:number) => neighboursIndex[position].reduce(
     (count:number, neighbourIndex:number) => count = area[neighbourIndex].cell
       ? count + 1
@@ -151,12 +142,14 @@ export const LiveGame:FC = () => {
   }, [round, width, height]);
 
   return (
-    <section>
-      <h2>Live Game Assigment</h2>
-      <p>round: {round}</p>
-      <button onClick={() => setRound(increase)}>next step</button>
-      <button onClick={() => setCountOfPlay(increase)}>random</button>
-      <button onClick={() => playControll(isPlaying ? PLAY.STOP : PLAY.START)}>{isPlaying ? 'stop' : 'play'}</button>
+    <main>
+      <section className="live-control">
+        <h2>Live Game Assigment</h2>
+        <p>round: {round}</p>
+        <button onClick={() => setRound(increase)}>next step</button>
+        <button onClick={() => setCountOfPlay(increase)}>random</button>
+        <button onClick={() => playControll(isPlaying ? PLAY.STOP : PLAY.START)}>{isPlaying ? 'stop' : 'play'}</button>
+      </section>
       <section className="live-area" style={{gridTemplate: `repeat(${height}, ${cellSize}px) / repeat(${width}, ${cellSize}px)`}}>
         {
           area.map(({cell, hash}, index) => (
@@ -164,6 +157,6 @@ export const LiveGame:FC = () => {
           ))
         }
       </section>
-    </section>
+    </main>
   )
 }

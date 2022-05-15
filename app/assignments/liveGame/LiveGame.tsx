@@ -1,6 +1,10 @@
 import {useEffect, useState, useCallback, FC} from 'react';
 import '../../styles/live-games.scss';
 
+const cellSize = 22;
+const gridWidth = 15;
+const gridHeight = 15;
+
 const hash:()=>string = () =>  Math.random().toString(32).slice(-7);
 
 export interface ICell {
@@ -8,7 +12,7 @@ export interface ICell {
   hash: string,
 }
 
-export type Area = ICell[];
+export type TArea = ICell[];
 
 export const inRange = (low:number, high:number ) => (value:number) => value >= low && value <= high;
 
@@ -20,8 +24,8 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
       -1 +width, +width, +1+width,
     ];
 
-    const leftBorder:number[] = [1,2,4,6,7];
-    const rightBorder:number[] = [1,2,4,6,7];
+    const leftBorder:number[] = [1, 2, 4, 6, 7];
+    const rightBorder:number[] = [0, 1, 3, 5, 6];
 
     const withoutLeftBorder:(x:number) => (d:number, n:number) => boolean = 
       (x:number) => (distance:number, neighbourDistanceIndex:number) => x === 0 
@@ -42,7 +46,7 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
       .fill(0)
       .map(
         (_, index:number) => {
-          const x:number = index / width | 0;
+          const x:number = index % width;
           return neighboursDistance
             .filter(withoutLeftBorder(x))
             .filter(withoutRightBorder(x))
@@ -55,22 +59,27 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
   };
  
 export const LiveGame:FC = () => {
-  const [area, setArea] = useState<Area>([]);
+  const [area, setArea] = useState<TArea>([]);
+  const [debugNh, setDebugNh] = useState<number[]>([]);
   const [round, setRound] = useState<number>(0);
-  const [width, setWidth] = useState<number>(11);
-  const [height, setHeight] = useState<number>(11);
+  const [countOfPlay, setCountOfPlay] = useState<number>(0);
+  const [width, setWidth] = useState<number>(gridWidth);
+  const [height, setHeight] = useState<number>(gridHeight);
 
   const neighboursIndex:number[][] = useCallback(calcNeighboursDistances(width, height), [width, height]);
 
   useEffect(() => console.log(neighboursIndex), [neighboursIndex]);
 
   useEffect(() => {
-    const defaultArea:Area = Array(width * height)
+    const defaultArea:TArea = Array(width * height)
       .fill({cell:false, hash:''})
-      .map(cell => ({cell: Math.random() > .75, hash:hash()}))
+      .map(_ => ({cell: Math.random() > .75, hash:hash()}))
     setArea(defaultArea);
     setRound(0);
-  }, [width, height])
+    const amountOfNeighbours:(position:number) => number = countNeighbours(defaultArea);
+    setDebugNh(defaultArea.map((_,i) => amountOfNeighbours(i)));
+
+  }, [countOfPlay])
   
   /*
 
@@ -81,58 +90,65 @@ export const LiveGame:FC = () => {
 
   */
 
-  const countNeighbours = (area:Area) => (position:number) => neighboursIndex[position].reduce(
-    (count:number, neighbourIndex:number) => count = area[neighbourIndex] 
-      ? count + 1 
+  const countNeighbours = (area:TArea) => (position:number) => neighboursIndex[position].reduce(
+    (count:number, neighbourIndex:number) => count = area[neighbourIndex].cell
+      ? count + 1
       : count
     ,0
   );
 
+  const nextGeneration:(old:TArea) => TArea = parentArea => {
+    const amountOfNeighbours:(position:number) => number = countNeighbours(parentArea);
+    
+    const mustDie = (acu:Object ,cell:ICell, position:number) => !inRange(2,3)(amountOfNeighbours(position)) 
+      ? {...acu, [cell.hash]:true}
+      : acu
+    ;
+    const mustBorn = (acu:Object, cell:ICell, position:number) => amountOfNeighbours(position) === 3
+      ? {...acu, [cell.hash]:true}
+      : acu
+    ;
+
+    const dieHashes:{} = parentArea.reduce(mustDie, {});
+    const bornHashes:{} = parentArea.reduce(mustBorn, {});
+
+    const dieProgress = ({cell, hash}:ICell) => ({
+      cell: dieHashes?.[hash] ? false : cell, 
+      hash
+    });
+
+    const bornProgress = ({cell, hash}:ICell) => ({
+      cell: bornHashes?.[hash] ? true : cell, 
+      hash
+    });
+
+
+    return parentArea
+      .map(dieProgress)
+      .map(bornProgress)
+    ;
+  }
+
+
   useEffect(() => {
-    setArea(
-      parentArea => {
-        if (round === 0) return parentArea;
-
-        const amountOfNeighbours:(position:number) => number = countNeighbours(parentArea);
-        const mustToDie = (acu:Object ,cell:ICell, position:number) => inRange(2,3)(amountOfNeighbours(position)) 
-          ? {...acu, [cell.hash]:true}
-          : acu
-        ;
-        const mustBorn = (acu:Object, cell:ICell, position:number) => amountOfNeighbours(position) === 3
-          ? {...acu, [cell.hash]:true}
-          : acu
-        ;
-
-        const preparedToDie:{} = parentArea.reduce(mustToDie, {});
-        const bornToLive:{} = parentArea.reduce(mustBorn, {});
-        
-        console.warn(preparedToDie, bornToLive)
-
-        return parentArea
-          .map(
-            ({cell, hash}:ICell) => ({
-              cell: preparedToDie?.[hash] ? false : cell, 
-              hash
-            })
-          )
-          .map(
-            ({cell, hash}:ICell) => ({
-              cell: bornToLive?.[hash] ? true : cell, 
-              hash
-            })
-          )
-        ;
-      }
-    )
+    if (round === 0) return null;
+    const newGeneration = nextGeneration(area);
+    setArea(newGeneration);
+    const amountOfNeighbours:(position:number) => number = countNeighbours(newGeneration);
+    setDebugNh(newGeneration.map((_,i) => amountOfNeighbours(i)));
   }, [round, width, height]);
 
   return (
     <section>
       <h2>Live Game Assigment</h2>
-      <p>round: {round}</p><button onClick={() => setRound(r => r+1)}>next step</button>
-      <section className="live-area" style={{gridTemplate: `repeat(${height}, 15px) / repeat(${width}, 15px)`}}>
+      <p>round: {round}</p>
+      <button onClick={() => setRound(r => r+1)}>next step</button>
+      <button onClick={() => setCountOfPlay(r => r + 1)}>random</button>
+      <section className="live-area" style={{gridTemplate: `repeat(${height}, ${cellSize}px) / repeat(${width}, ${cellSize}px)`}}>
         {
-          area.map(({cell, hash}) => <div className="cell" key={hash} data-cell={cell}  />)
+          area.map(({cell, hash}, index) => (
+            <div className="cell" key={hash} data-cell={cell}>{debugNh?.[index]}</div>
+          ))
         }
       </section>
     </section>

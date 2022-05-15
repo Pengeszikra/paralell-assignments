@@ -11,7 +11,7 @@ button, svg text, span, label, h1, h2, h3, h4, p { user-select: none; }
 
 .cell {
   background: rgb(192, 185, 185);
-  &[data-cell="true"] {
+  &[data-cell="1"] {
     background: black;
   };
   color: white;

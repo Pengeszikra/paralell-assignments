@@ -23,6 +23,18 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
     const leftBorder:number[] = [1,2,4,6,7];
     const rightBorder:number[] = [1,2,4,6,7];
 
+    const withoutLeftBorder:(x:number) => (d:number, n:number) => boolean = 
+      (x:number) => (distance:number, neighbourDistanceIndex:number) => x === 0 
+        ? leftBorder.includes(neighbourDistanceIndex)
+        : true
+      ;
+
+    const withoutRightBorder:(x:number) => (d:number, n:number) => boolean = 
+      (x:number) => (distance:number, neighbourDistanceIndex) => x === width-1 
+        ? rightBorder.includes(neighbourDistanceIndex)
+        : true
+      ;
+
     const amount:number = width * height;
     const isInside:(n:number) => boolean = inRange(0, amount - 1);
 
@@ -32,14 +44,8 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
         (_, index:number) => {
           const x:number = index / width | 0;
           return neighboursDistance
-            .filter((distance:number, neighbourDistanceIndex) => x === 0 
-              ? leftBorder.includes(neighbourDistanceIndex)
-              : true
-            )
-            .filter((distance:number, neighbourDistanceIndex) => x === width-1 
-              ? rightBorder.includes(neighbourDistanceIndex)
-              : true
-            )
+            .filter(withoutLeftBorder(x))
+            .filter(withoutRightBorder(x))
             .map((distance:number) => distance + index)
             .filter((distance:number) => isInside(distance))
           ;
@@ -51,10 +57,12 @@ export const calcNeighboursDistances:(width:number, height:number) => number[][]
 export const LiveGame:FC = () => {
   const [area, setArea] = useState<Area>([]);
   const [round, setRound] = useState<number>(0);
-  const [width, setWidth] = useState<number>(30);
-  const [height, setHeight] = useState<number>(30);
+  const [width, setWidth] = useState<number>(11);
+  const [height, setHeight] = useState<number>(11);
 
-  const neighboursIndex = useCallback(calcNeighboursDistances(width, height), [width, height]);
+  const neighboursIndex:number[][] = useCallback(calcNeighboursDistances(width, height), [width, height]);
+
+  useEffect(() => console.log(neighboursIndex), [neighboursIndex]);
 
   useEffect(() => {
     const defaultArea:Area = Array(width * height)
@@ -81,23 +89,48 @@ export const LiveGame:FC = () => {
   );
 
   useEffect(() => {
-    setArea(parentArea => {
-      const amountOfNeighbours:(position:number) => number = countNeighbours(parentArea);
-      const mustToDie = (cell:ICell, position:number) => inRange(2,3)(amountOfNeighbours(position)) ;
-      const mustToLive = (cell:ICell, position:number) => amountOfNeighbours(position) === 3;
-      const dieList = parentArea.filter(mustToDie);
-      const liveList = parentArea.filter(mustToLive);
-      return parentArea.map(
-        ({cell, hash}) => ({cell, hash})
-      );
-    })
+    setArea(
+      parentArea => {
+        if (round === 0) return parentArea;
+
+        const amountOfNeighbours:(position:number) => number = countNeighbours(parentArea);
+        const mustToDie = (acu:Object ,cell:ICell, position:number) => inRange(2,3)(amountOfNeighbours(position)) 
+          ? {...acu, [cell.hash]:true}
+          : acu
+        ;
+        const mustBorn = (acu:Object, cell:ICell, position:number) => amountOfNeighbours(position) === 3
+          ? {...acu, [cell.hash]:true}
+          : acu
+        ;
+
+        const preparedToDie:{} = parentArea.reduce(mustToDie, {});
+        const bornToLive:{} = parentArea.reduce(mustBorn, {});
+        
+        console.warn(preparedToDie, bornToLive)
+
+        return parentArea
+          .map(
+            ({cell, hash}:ICell) => ({
+              cell: preparedToDie?.[hash] ? false : cell, 
+              hash
+            })
+          )
+          .map(
+            ({cell, hash}:ICell) => ({
+              cell: bornToLive?.[hash] ? true : cell, 
+              hash
+            })
+          )
+        ;
+      }
+    )
   }, [round, width, height]);
 
   return (
     <section>
       <h2>Live Game Assigment</h2>
       <p>round: {round}</p><button onClick={() => setRound(r => r+1)}>next step</button>
-      <section className="live-area">
+      <section className="live-area" style={{gridTemplate: `repeat(${height}, 15px) / repeat(${width}, 15px)`}}>
         {
           area.map(({cell, hash}) => <div className="cell" key={hash} data-cell={cell}  />)
         }

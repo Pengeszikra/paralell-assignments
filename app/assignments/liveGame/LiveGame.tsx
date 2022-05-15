@@ -1,5 +1,5 @@
 import {useEffect, useState, useCallback, FC} from 'react';
-import '../styles/live-games.scss';
+import '../../styles/live-games.scss';
 
 const hash:()=>string = () =>  Math.random().toString(32).slice(-7);
 

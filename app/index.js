@@ -5,4 +5,4 @@ import { LiveGame } from './assignments/liveGame/LiveGame';
 import { TriviaChallenge } from './assignments/Quiz/TriviaChallenge';
 import { Paint } from './assignments/Paint/Paint';
 
-render(<LiveGame />, document.getElementById('app'));
+render(<TriviaChallenge />, document.getElementById('app'));

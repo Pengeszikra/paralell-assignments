@@ -1,4 +1,4 @@
-import { increase } from "../TriviaChallenge";
+import { increase } from "../../../utils/increase";
 
 const source = [
   {

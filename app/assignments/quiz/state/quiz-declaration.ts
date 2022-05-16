@@ -25,11 +25,16 @@ export interface IQuestion {
   shuffledAnswerList: Array<IAnswer>;
 }
 
-export interface IApplicationState {
-  sourceList: Array<IQuestionSource>;
-  correctAnswerList: Array<TAnswerId>;
-  solutionList: Array<TAnswerId>;
-  shuffledQuestionList: Array<IQuestion>;
+export interface IQuizState {
+  sourceList: IQuestionSource[];
+  correctAnswerList: TAnswerId[];
+  solutionList: TAnswerId[];
+  shuffledQuestionList: IQuestion[];
   answerIndex: number;
   progress: PROGRESS;
+}
+
+export interface IAction {
+  type: string;
+  payload: any;
 }

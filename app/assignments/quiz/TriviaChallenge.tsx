@@ -1,25 +1,20 @@
-import {useEffect, useState, FC} from 'react';
+import React, {useEffect, FC} from 'react';
+import {useTroll} from 'react-troll'
 import { QuizeCard } from './QuizeCard';
 import './style/quiz.scss';
 import {Navbar, Container} from 'react-bootstrap';
 import { Intro } from './Intro';
 import { Results } from './Results';
-import { PROGRESS } from './state/quiz-state';
-
-const htmlDecode = (input:string):string => {
-  const doc = new DOMParser().parseFromString(input, "text/html");
-  return doc.documentElement.textContent;
-}
-
-export const increase:(n:number) => number = (n:number) => n + 1;
-
-export const shuffle = (list = []) => [...list].sort(() => Math.random() - 0.5);
+import { IQuizState, PROGRESS } from './state/quiz-declaration';
+import { quizActionsSet, quizInitialState, quizReducer } from './state/quiz-control';
+import { shuffle } from './library/shuffle';
+import { htmlDecode } from './library/htmlDecode';
 
 export const TriviaChallenge:FC = () => {
 
-  const [content, loadContent] = useState([]);
-  const [quizIndex, setQuizIndex] = useState<number>(0)
-  const [progress, setProgress] = useState(PROGRESS.INTRO)
+  const [state, actions] = useTroll(quizReducer, quizInitialState, quizActionsSet);
+  const {progress, sourceList, answerIndex}:IQuizState = state;
+  const {setProgress, readSource, beginQuiz, nextQuiz} = actions;  
 
   useEffect(() => {
     if (progress !== PROGRESS.INTRO)
@@ -27,8 +22,8 @@ export const TriviaChallenge:FC = () => {
     // fetch('https://opentdb.com/api.php?amount=10&difficulty=easy')
       .then(r => r.json())
       .then(p => {
-        loadContent(p?.results);
-        setQuizIndex(0);
+        readSource(p?.results);
+        beginQuiz();
         console.warn(p.results);
       })
   }, [progress]);
@@ -40,27 +35,20 @@ export const TriviaChallenge:FC = () => {
           <Navbar.Brand>Trivia Challenge</Navbar.Brand>
         </Container>
       </Navbar>
-      <section className="quiz-body">
-        
+      <section className="quiz-body">        
         {progress === PROGRESS.INTRO && (
           <Intro beginQuiz={() => setProgress(PROGRESS.QUIZ)}></Intro>
         )}
 
-        {progress === PROGRESS.QUIZ && content.filter((_,i) => i === quizIndex).map(({category, question, correct_answer, incorrect_answers = []}, key) => (
+        {progress === PROGRESS.QUIZ && sourceList.filter((_,i) => i === answerIndex).map(({category, question, correct_answer, incorrect_answers = []}, key) => (
           <QuizeCard key={key} category={category} question={htmlDecode(question)} answers={shuffle([correct_answer, ...incorrect_answers]).map(htmlDecode)} choiceAnswer={(answerKey) => () => {
-            console.warn(answerKey);
-            setQuizIndex(increase);
-            if (quizIndex === 10 - 1) {
-              setProgress(PROGRESS.RESULTS)
-            }
+            nextQuiz();
           }}/>
         ))}
         
         {progress === PROGRESS.RESULTS && (
           <Results playAgain={() => setProgress(PROGRESS.INTRO)} />
         )}
-        
-        {/* <pre>{JSON.stringify(content, null, 2)}</pre> */}
       </section>
     </main>
   );

@@ -30,6 +30,7 @@ export const quizReducer:TQuziReducer = (state:IQuizState, {type, payload}:Actio
     case SET_PROGRESS: return {...state, progress:payload};
     case READ_SOURCE: return {...state, sourceList:payload};
     case PREPARE_QUIZ: {
+      if (!Array.isArray(payload)) return state;
       return state;
     }
     case BEGIN_QUIZ: return {...state, answerIndex: 0, progress:PROGRESS.QUIZ};

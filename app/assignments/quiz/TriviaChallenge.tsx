@@ -1,15 +1,12 @@
 import React, {useEffect, FC} from 'react';
-import { QuizeCard } from './QuizeCard';
 import './style/quiz.scss';
 import {Navbar, Container} from 'react-bootstrap';
-import { Intro } from './Intro';
-import { Results } from './Results';
+import { Intro } from './component/Intro';
+import { Results } from './component/Results';
+import { QuizCard } from './component/QuizCard';
 import { IQuizState, PROGRESS } from './state/quiz-declaration';
-import { shuffle } from './library/shuffle';
-import { htmlDecode } from './library/htmlDecode';
-import { useQuizReducer } from './useQuizReducer';
+import { useQuizReducer } from './state/useQuizReducer';
 import { Troll } from '../../utils/react-troll-declaration';
-import { QuizCard } from './QuizCard';
 
 export const TriviaChallenge:FC = () => {
 
@@ -45,12 +42,6 @@ export const TriviaChallenge:FC = () => {
           <QuizCard army={army} randomQuestion={shuffledQuestionList?.[answerIndex]} />
         )}
 
-        {/* {progress === PROGRESS.QUIZ && sourceList.filter((_,i) => i === answerIndex).map(({category, question, correct_answer, incorrect_answers = []}, key) => (
-          <QuizeCard key={key} category={category} question={htmlDecode(question)} answers={shuffle([correct_answer, ...incorrect_answers]).map(htmlDecode)} choiceAnswer={(answerKey) => () => {
-            nextQuiz();
-          }}/>
-        ))} */}
-        
         {progress === PROGRESS.RESULTS && (
           <Results playAgain={playAgain} />
         )}

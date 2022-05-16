@@ -1,3 +1,5 @@
+import { convertSourceToState } from "../library/convertSourceToState";
+import { createIdList } from "../library/createIdList";
 import { IQuizState, IQuestionSource } from "../state/quiz-declaration";
 
 const source = [
@@ -95,12 +97,6 @@ test ('simple addition', () => {
   );
 });
 
-export const convertSourceToState:(source:IQuestionSource[]) => Partial<IQuizState> 
-  = (source:IQuestionSource[]) => ({
-      sourceList: source,
-    })
-  ;
-
 test ('convert IQuestionSourceList to IQuizState', () => {
   expect (
     convertSourceToState(source)
@@ -109,16 +105,10 @@ test ('convert IQuestionSourceList to IQuizState', () => {
   );
 });
 
-export const createIdList:(idCreator:()=>string) => (source:IQuestionSource[]) => string[] 
-  = (idCreator:()=>string) => (source:IQuestionSource[]) => 
-    Array(source.length)
-      .fill('')
-      .map(() => idCreator())
-  ;
-
 test ('create enough id for source', () => {
   let firstId = 100;
   const mockIdCreator = () => (firstId++).toString(); 
+  
   expect (
     createIdList(mockIdCreator)(source.slice(0, 4))
     

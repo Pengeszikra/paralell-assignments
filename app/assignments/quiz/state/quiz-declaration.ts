@@ -10,7 +10,7 @@ export interface IQuestionSource {
   difficulty: string;
   question: string;
   correct_answer: string; 
-  incorrect_answers: Array<string>;
+  incorrect_answers: string[];
 }
 
 export type TAnswerId = string;
@@ -22,7 +22,9 @@ export interface IAnswer {
 
 export interface IQuestion {
   questionId: string;
-  shuffledAnswerList: Array<IAnswer>;
+  question: string;
+  category: string;
+  shuffledAnswerList: IAnswer[];
 }
 
 export interface IQuizState {
@@ -32,9 +34,4 @@ export interface IQuizState {
   shuffledQuestionList: IQuestion[];
   answerIndex: number;
   progress: PROGRESS;
-}
-
-export interface IAction {
-  type: string;
-  payload: any;
 }

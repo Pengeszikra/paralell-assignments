@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Card, Button } from "react-bootstrap";
-import { IApplicationState } from "./state/quiz";
+import { IApplicationState } from "./state/quiz-state";
 
 export interface IResult extends IApplicationState {
   playAgain: () => any;

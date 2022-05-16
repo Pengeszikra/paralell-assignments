@@ -4,12 +4,7 @@ import './style/quiz.scss';
 import {Navbar, Container} from 'react-bootstrap';
 import { Intro } from './Intro';
 import { Results } from './Results';
-
-enum PROGRESS {
-  INTRO,
-  QUIZ,
-  RESULTS,
-}
+import { PROGRESS } from './state/quiz-state';
 
 const htmlDecode = (input:string):string => {
   const doc = new DOMParser().parseFromString(input, "text/html");

@@ -97,13 +97,13 @@ test ('simple addition', () => {
   );
 });
 
-// test ('convert IQuestionSourceList to IQuizState', () => {
-//   expect (
-//     convertSourceToState(source, [])
-//   ).toStrictEqual(
-//     {sourceList: source}
-//   );
-// });
+test ('convert IQuestionSourceList to IQuizState', () => {
+  expect (
+    convertSourceToState(source, [])
+  ).toStrictEqual(
+    {sourceList: source}
+  );
+});
 
 test ('create enough id for source', () => {
   let firstId = 100;

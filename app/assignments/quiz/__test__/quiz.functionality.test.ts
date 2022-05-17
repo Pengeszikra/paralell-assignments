@@ -97,22 +97,22 @@ test ('simple addition', () => {
   );
 });
 
-test ('convert IQuestionSourceList to IQuizState', () => {
-  expect (
-    convertSourceToState(source, [])
-  ).toStrictEqual(
-    {sourceList: source}
-  );
-});
+// test ('convert IQuestionSourceList to IQuizState', () => {
+//   expect (
+//     convertSourceToState(source, [])
+//   ).toStrictEqual(
+//     {sourceList: source}
+//   );
+// });
 
 test ('create enough id for source', () => {
   let firstId = 100;
   const mockIdCreator = () => (firstId++).toString(); 
   
   expect (
-    createIdList(mockIdCreator)(source.slice(0, 4))
+    createIdList(mockIdCreator)(source.slice(0, 2))
     
   ).toStrictEqual(
-    ['100', '101', '102', '103']
+    ['100', '101', '102', '103', '104', '105', '106', '107', '108', '109']
   );
 });

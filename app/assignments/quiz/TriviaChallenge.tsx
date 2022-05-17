@@ -19,8 +19,8 @@ export const TriviaChallenge:FC = () => {
   useEffect(() => {
     if (progress !== PROGRESS.INTRO) return null;
     const uuidFactory = createIdList(uuid);
-    fetch(`https://opentdb.com/api.php?amount=10&difficulty=hard&type=boolean`)
-    // fetch('https://opentdb.com/api.php?amount=10&difficulty=easy')
+    // fetch(`https://opentdb.com/api.php?amount=10&difficulty=hard&type=boolean`)
+    fetch('https://opentdb.com/api.php?amount=10&difficulty=easy')
       .then(r => r.json())
       .then(p => {
         const {results} = p
@@ -29,7 +29,7 @@ export const TriviaChallenge:FC = () => {
       })
   }, [progress]);
 
-  useEffect(()=>console.log(state),[state]);
+  // useEffect(()=>console.log(state),[state]);
   
   return (
     <main>
@@ -44,11 +44,11 @@ export const TriviaChallenge:FC = () => {
         )}
 
         {progress === PROGRESS.QUIZ && shuffledQuestionList?.[answerIndex] && (
-          <QuizCard army={army} randomQuestion={shuffledQuestionList?.[answerIndex]} />
+          <QuizCard army={army} answerIndex={answerIndex} randomQuestion={shuffledQuestionList?.[answerIndex]} />
         )}
 
         {progress === PROGRESS.RESULTS && (
-          <Results playAgain={playAgain} />
+          <Results state={state} army={army} />
         )}
       </section>
     </main>

@@ -5,10 +5,11 @@ import { IQuestion } from "./state/quiz-declaration";
 
 export interface IQuizCardProps {
   randomQuestion: IQuestion;
-  army: ActionArmy
+  army: ActionArmy;
+  answerIndex: number;
 }
 
-export const QuizCard:FC<IQuizCardProps> = ({randomQuestion, army}:IQuizCardProps) => {
+export const QuizCard:FC<IQuizCardProps> = ({randomQuestion, answerIndex, army}:IQuizCardProps) => {
 
   const {shuffledAnswerList, question, category} = randomQuestion;
   const {markAnswer, nextQuiz} = army;
@@ -28,6 +29,7 @@ export const QuizCard:FC<IQuizCardProps> = ({randomQuestion, army}:IQuizCardProp
             <Button key={answerId} onClick={handleMarkAnswer(answerId)}>{answer}</Button>
           )}
         </Stack>
+        <p className="grid-center">{answerIndex + 1} of {shuffledAnswerList.length + 1}</p>
       </Card.Body>
     </Card>
   )

@@ -24,7 +24,7 @@ export const QuizCard:FC<IQuizCardProps> = ({randomQuestion, army}:IQuizCardProp
         <Card.Subtitle className="text-muted">{category}</Card.Subtitle>
         <Card.Text>{question}</Card.Text>
         <Stack gap={1}>
-          {shuffledAnswerList.map(({answer, answerId}) => 
+          {(shuffledAnswerList ?? []).map(({answer, answerId}) => 
             <Button key={answerId} onClick={handleMarkAnswer(answerId)}>{answer}</Button>
           )}
         </Stack>

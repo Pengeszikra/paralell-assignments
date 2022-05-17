@@ -99,7 +99,7 @@ test ('simple addition', () => {
 
 test ('convert IQuestionSourceList to IQuizState', () => {
   expect (
-    convertSourceToState(source)
+    convertSourceToState(source, [])
   ).toStrictEqual(
     {sourceList: source}
   );

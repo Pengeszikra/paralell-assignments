@@ -1,5 +1,6 @@
 import { actionFactory, kebabToCamelCase } from "react-troll";
 import { Action } from "../../../utils/react-troll-declaration";
+import { convertSourceToState } from "../library/convertSourceToState";
 import { IQuizState, PROGRESS } from "./quiz-declaration";
 
 export const [quizActionsSet, action] = actionFactory(kebabToCamelCase);
@@ -31,7 +32,8 @@ export const quizReducer:TQuziReducer = (state:IQuizState, {type, payload}:Actio
     case READ_SOURCE: return {...state, sourceList:payload};
     case PREPARE_QUIZ: {
       if (!Array.isArray(payload)) return state;
-      return state;
+      const idList:string[] = payload;
+      return {...state, ...convertSourceToState(state.sourceList, idList)};
     }
     case BEGIN_QUIZ: return {...state, answerIndex: 0, progress:PROGRESS.QUIZ};
     case NEXT_QUIZ: {

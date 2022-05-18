@@ -1,4 +1,3 @@
-export const htmlDecode = (input:string):string => {
-  const doc = new global.DOMParser().parseFromString(input, "text/html");
-  return doc.documentElement.textContent;
-}
+import {decode} from 'html-entities';
+
+export const htmlDecode = (input:string):string => decode(input);

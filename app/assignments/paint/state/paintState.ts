@@ -5,11 +5,14 @@ export enum TOOL {
   Move,
   Delete,
   Select,
+  BoxSelect,
 }
 
 export enum SHAPE {
   Line,
   Trinagle,
+  Box,
+  Circle,
 }
 
 export type TCoord = [number, number]
